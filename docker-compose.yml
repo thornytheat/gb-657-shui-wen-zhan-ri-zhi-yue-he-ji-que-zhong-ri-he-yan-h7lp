@@ -5,6 +5,8 @@ services:
     environment:
       HYDROCALENDAR_DB: /data/hydrocalendar.sqlite
       HYDROCALENDAR_SAMPLE_DIR: /app/sample_data
+      DISPATCH_DB: /data/dispatch.sqlite
+      RAIN_WARN_THRESHOLD_MM: "300.0"
       TZ: Asia/Shanghai
     ports:
       - "18216:8000"

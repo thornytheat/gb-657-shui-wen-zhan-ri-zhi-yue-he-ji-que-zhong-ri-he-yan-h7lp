@@ -40,6 +40,7 @@ def fixed_timezone():
 @pytest.fixture()
 def settings(tmp_path) -> config.Settings:
     return config.Settings(db_path=str(tmp_path / "hydrocalendar.sqlite"),
+                           dispatch_db_path=str(tmp_path / "dispatch.sqlite"),
                            sample_dir=str(SAMPLE_DIR))
 
 

@@ -95,14 +95,31 @@ class Settings:
     db_path: str = str(PROJECT_ROOT / "var" / "hydrocalendar.sqlite")
     sample_dir: str = str(PROJECT_ROOT / "sample_data")
     rule_version: str = RULE_VERSION
+    # M8 预警派单子系统独立 SQLite（与主库分开，互不影响表结构）
+    dispatch_db_path: str = str(PROJECT_ROOT / "var" / "dispatch.sqlite")
+    # 月雨量警戒线（mm）：月量 >= 阈值预警，更正到严格小于阈值才撤警
+    rain_warn_threshold_mm: Decimal = Decimal("300.0")
+    # 按站覆盖警戒线：{"站号": Decimal(...)}；环境变量用 JSON 提供
+    rain_warn_station_thresholds: dict | None = None
 
     @classmethod
     def from_env(cls) -> "Settings":
         base = cls()
+        import json
+        station_raw = os.getenv("RAIN_WARN_STATION_THRESHOLDS")
+        station_thresholds = None
+        if station_raw:
+            station_thresholds = {
+                str(k): Decimal(str(v)) for k, v in json.loads(station_raw).items()}
         return replace(
             cls(),
             db_path=os.getenv("HYDROCALENDAR_DB") or base.db_path,
             sample_dir=os.getenv("HYDROCALENDAR_SAMPLE_DIR") or base.sample_dir,
+            dispatch_db_path=os.getenv("DISPATCH_DB") or base.dispatch_db_path,
+            rain_warn_threshold_mm=Decimal(
+                os.getenv("RAIN_WARN_THRESHOLD_MM")
+                or str(base.rain_warn_threshold_mm)),
+            rain_warn_station_thresholds=station_thresholds,
         )
 
     @property

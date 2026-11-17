@@ -29,3 +29,9 @@ target/
 *.o
 *.obj
 .DS_Store
+
+# 本地运行的 SQLite 与 WAL 产物
+var/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm

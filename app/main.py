@@ -17,9 +17,11 @@ from .modules.m4_intervals import handler as m4_handler
 from .modules.m5_months import handler as m5_handler
 from .modules.m6_batches import handler as m6_handler
 from .modules.m7_export import handler as m7_handler
+from .modules.m8_dispatch import handler as m8_handler
+from .modules.m8_dispatch.context import DispatchContext
 
 MODULES = (m1_handler, m2_handler, m3_handler, m4_handler, m5_handler,
-           m6_handler, m7_handler)
+           m6_handler, m7_handler, m8_handler)
 
 PAGES = ("/", "/readings", "/intervals", "/months", "/batches", "/export")
 
@@ -33,11 +35,13 @@ def create_app(settings: config.Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.store = Store(settings.db_path)
+    app.state.dispatch_ctx = DispatchContext(settings)
     app.state.ctx = web.Ctx(settings=settings, store=app.state.store)
     web.setup(app)
     app.mount("/static", StaticFiles(directory=str(web.STATIC_DIR)), name="static")
     for module in MODULES:
         app.include_router(module.router)
+    app.include_router(m8_handler.station_router)
     errors.install_handlers(app)
 
     @app.get("/")
